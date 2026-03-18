@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Jurídica PY - Cronograma 300 Dias</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a2a3a, #2c3e50);
+            color: white;
+            padding: 30px;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        .stat-card .sub {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        .controls {
+            padding: 20px 30px;
+            background: white;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            background: #f1f5f9;
+        }
+        .filter-btn.active {
+            background: #1e293b;
+            color: white;
+            border-color: #1e293b;
+        }
+        .search-box {
+            flex: 1;
+            padding: 8px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 250px;
+        }
+        .progress-bar-container {
+            padding: 0 30px 20px 30px;
+        }
+        .progress-bar {
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e, #16a34a);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .table-container {
+            padding: 0 30px 30px 30px;
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: #f8fafc;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
+        tr:hover {
+            background: #f8fafc;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-concluido {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status-andamento {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+        .status-pendente {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .fase-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .fase-1 { background: #dbeafe; color: #1e40af; }
+        .fase-2 { background: #f3e8ff; color: #6b21a8; }
+        .fase-3 { background: #fae8ff; color: #86198f; }
+        .fase-4 { background: #ffe4e6; color: #9f1239; }
+        .fase-5 { background: #fff1f0; color: #b91c1c; }
+        .fase-6 { background: #fef3c7; color: #92400e; }
+        .fase-7 { background: #d1fae5; color: #065f46; }
+        .fase-8 { background: #ccfbf1; color: #115e59; }
+        .fase-9 { background: #e0f2fe; color: #0369a1; }
+        .fase-10 { background: #ede9fe; color: #5b21b6; }
+        .footer {
+            padding: 20px 30px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #1e293b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0f172a;
+        }
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #16a34a;
+        }
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                flex-direction: column;
+            }
+            .table-container {
+                padding: 0 15px 15px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ IA Jurídica PY - Cronograma 300 Dias</h1>
+            <p>Jornada completa para construir plataforma de IA para concursos públicos no Paraguai</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Dias Concluídos</h3>
+                <div class="value" id="dias-concluidos">0</div>
+                <div class="sub">de 300</div>
+            </div>
+            <div class="stat-card">
+                <h3>Progresso Geral</h3>
+                <div class="value" id="progresso-geral">0%</div>
+                <div class="sub">concluído</div>
+            </div>
+            <div class="stat-card">
+                <h3>Dia Atual</h3>
+                <div class="value" id="dia-atual">1</div>
+                <div class="sub">foco de hoje</div>
+            </div>
+            <div class="stat-card">
+                <h3>Fase Ativa</h3>
+                <div class="value" id="fase-ativa">Fase 1</div>
+                <div class="sub">Fundação</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="filter-btn active" data-filter="todos">Todos</button>
+            <button class="filter-btn" data-filter="hoje">Hoje</button>
+            <button class="filter-btn" data-filter="pendente">Pendentes</button>
+            <button class="filter-btn" data-filter="andamento">Em Andamento</button>
+            <button class="filter-btn" data-filter="concluido">Concluídos</button>
+            <select class="filter-btn" id="filtro-fase">
+                <option value="todas">Todas as Fases</option>
+                <option value="F1">Fase 1: Fundação</option>
+                <option value="F2">Fase 2: Agentes</option>
+                <option value="F3">Fase 3: Java</option>
+                <option value="F4">Fase 4: Frontend</option>
+                <option value="F5">Fase 5: MP/Defensoria</option>
+                <option value="F6">Fase 6: WhatsApp</option>
+                <option value="F7">Fase 7: Analytics</option>
+                <option value="F8">Fase 8: Expansão</option>
+                <option value="F9">Fase 9: Escalabilidade</option>
+                <option value="F10">Fase 10: Lançamento</option>
+            </select>
+            <input type="text" class="search-box" id="busca" placeholder="🔍 Buscar atividade...">
+            <button class="btn btn-success" id="salvar">💾 Salvar Progresso</button>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-bar-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="cronograma">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">✅</th>
+                        <th style="width: 60px;">Dia</th>
+                        <th style="width: 100px;">Data</th>
+                        <th style="width: 80px;">Fase</th>
+                        <th>Atividade</th>
+                        <th style="width: 150px;">Entregável</th>
+                        <th style="width: 100px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-corpo">
+                    <!-- Será preenchido com JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <div>📅 Última atualização: <span id="data-atual">18/03/2026</span></div>
+            <div>
+                <button class="btn btn-primary" id="exportar">📥 Exportar Progresso</button>
+                <button class="btn" id="importar">📤 Importar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados do cronograma - 300 dias detalhados
+        const cronogramaData = [
+            // FASE 1: FUNDAÇÃO (Dias 1-30)
+            { dia: 1, data: "01/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Setup do ambiente de desenvolvimento", entregavel: "Python + Git configurados", status: "pendente" },
+            { dia: 2, data: "02/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Script de extração de PDFs", entregavel: "extrator.py", status: "pendente" },
+            { dia: 3, data: "03/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Chunking inteligente (detectar questões)", entregavel: "splitter_questoes.py", status: "pendente" },
+            { dia: 4, data: "04/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Embeddings com modelo multilíngue", entregavel: "função gerar_embedding()", status: "pendente" },
+            { dia: 5, data: "05/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Limpeza e pré-processamento de texto", entregavel: "limpeza.py", status: "pendente" },
+            { dia: 6, data: "06/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Setup do ChromaDB (vector database)", entregavel: "banco vetorial rodando", status: "pendente" },
+            { dia: 7, data: "07/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Primeira carga de dados (500 questões)", entregavel: "base com 500 questões", status: "pendente" },
+            { dia: 8, data: "08/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Extração de metadados básicos", entregavel: "banca, ano, disciplina", status: "pendente" },
+            { dia: 9, data: "09/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Processamento em lote (primeiros 10 PDFs)", entregavel: "script batch", status: "pendente" },
+            { dia: 10, data: "10/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Geração de embeddings em lote", entregavel: "embeddings em massa", status: "pendente" },
+            { dia: 11, data: "11/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Inserção no ChromaDB com metadados", entregavel: "base completa", status: "pendente" },
+            { dia: 12, data: "12/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Backup e exportação da base", entregavel: "backup.json", status: "pendente" },
+            { dia: 13, data: "13/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Validação da qualidade da extração", entregavel: "relatório de acurácia", status: "pendente" },
+            { dia: 14, data: "14/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Configuração do BM25 (busca por palavras)", entregavel: "índice BM25", status: "pendente" },
+            { dia: 15, data: "15/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Implementação da busca semântica", entregavel: "busca por embeddings", status: "pendente" },
+            { dia: 16, data: "16/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Busca híbrida (semântica + BM25)", entregavel: "buscador hibrido", status: "pendente" },
+            { dia: 17, data: "17/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Re-ranking com cross-encoder", entregavel: "reranker.py", status: "pendente" },
+            { dia: 18, data: "18/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Interface de linha de comando (CLI)", entregavel: "busca por terminal", status: "pendente" },
+            { dia: 19, data: "19/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Testes de precisão da busca", entregavel: "métricas Precision@k", status: "pendente" },
+            { dia: 20, data: "20/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Otimização de chunk size", entregavel: "tamanho ideal definido", status: "pendente" },
+            { dia: 21, data: "21/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Otimização de overlap entre chunks", entregavel: "overlap ideal", status: "pendente" },
+            { dia: 22, data: "22/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Reprocessamento completo dos PDFs", entregavel: "base final otimizada", status: "pendente" },
+            { dia: 23, data: "23/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Extração de metadados com LLM (opcional)", entregavel: "metadados enriquecidos", status: "pendente" },
+            { dia: 24, data: "24/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Cache de embeddings frequentes", entregavel: "cache Redis", status: "pendente" },
+            { dia: 25, data: "25/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Logging e monitoramento de buscas", entregavel: "logs estruturados", status: "pendente" },
+            { dia: 26, data: "26/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Documentação da base e APIs", entregavel: "docs/", status: "pendente" },
+            { dia: 27, data: "27/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Testes de integração completos", entregavel: "relatório de testes", status: "pendente" },
+            { dia: 28, data: "28/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Correção de bugs identificados", entregavel: "bugs corrigidos", status: "pendente" },
+            { dia: 29, data: "29/01/2026", fase: "F1", faseNome: "Fundação", atividade: "Revisão final da Fase 1", entregavel: "fase 1 concluída", status: "pendente" },
+            { dia: 30, data: "30/01/2026", fase: "F1", faseNome: "Fundação", atividade: "🎉 CELEBRAÇÃO - Fim da Fase 1", entregavel: "base funcional", status: "pendente" },
+
+            // FASE 2: AGENTES (Dias 31-60)
+            { dia: 31, data: "31/01/2026", fase: "F2", faseNome: "Agentes", atividade: "Arquitetura de agentes (ReAct, Tools)", entregavel: "design document", status: "pendente" },
+            { dia: 32, data: "01/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Classe base para agentes", entregavel: "BaseAgent.py", status: "pendente" },
+            { dia: 33, data: "02/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Tool de busca na base jurídica", entregavel: "ToolBuscaJuridica", status: "pendente" },
+            { dia: 34, data: "03/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Tool de consulta a leis paraguaias", entregavel: "ToolLeisPY", status: "pendente" },
+            { dia: 35, data: "04/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Tool de jurisprudência", entregavel: "ToolJurisprudencia", status: "pendente" },
+            { dia: 36, data: "05/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Registry de tools", entregavel: "gerenciador central", status: "pendente" },
+            { dia: 37, data: "06/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Testes unitários das tools", entregavel: "cobertura 100%", status: "pendente" },
+            { dia: 38, data: "07/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Sub-base de Direito Constitucional", entregavel: "filtro ChromaDB", status: "pendente" },
+            { dia: 39, data: "08/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Agente Constitucional", entregavel: "ConstitucionalAgent", status: "pendente" },
+            { dia: 40, data: "09/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Prompt específico para constitucional", entregavel: "system prompt", status: "pendente" },
+            { dia: 41, data: "10/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Memória de curto prazo", entregavel: "ConversationBuffer", status: "pendente" },
+            { dia: 42, data: "11/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Testes com 20 perguntas constitucionais", entregavel: "relatório de acertos", status: "pendente" },
+            { dia: 43, data: "12/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Refinamento de prompts", entregavel: "melhoria 20%", status: "pendente" },
+            { dia: 44, data: "13/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Documentação do agente constitucional", entregavel: "docs/agente.md", status: "pendente" },
+            { dia: 45, data: "14/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Sub-base de Direito Processual", entregavel: "filtro ChromaDB", status: "pendente" },
+            { dia: 46, data: "15/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Agente Processual", entregavel: "ProcessualAgent", status: "pendente" },
+            { dia: 47, data: "16/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Tool de consulta a códigos (CPP, CPC)", entregavel: "ToolCodigos", status: "pendente" },
+            { dia: 48, data: "17/02/2026", fase: "F2", faseNome: "Agentes", atividade: "RAG para artigos de lei", entregavel: "RetrievalQAChain", status: "pendente" },
+            { dia: 49, data: "18/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Testes comparativos entre agentes", entregavel: "matriz de especialização", status: "pendente" },
+            { dia: 50, data: "19/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Fallback entre agentes", entregavel: "RouterChain", status: "pendente" },
+            { dia: 51, data: "20/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Integração dos agentes na API", entregavel: "endpoint /perguntar", status: "pendente" },
+            { dia: 52, data: "21/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Modelagem do banco de usuários", entregavel: "PostgreSQL schema", status: "pendente" },
+            { dia: 53, data: "22/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Tabelas: usuarios, perfis, historico", entregavel: "migrations", status: "pendente" },
+            { dia: 54, data: "23/02/2026", fase: "F2", faseNome: "Agentes", atividade: "API de criação de usuário", entregavel: "POST /usuarios", status: "pendente" },
+            { dia: 55, data: "24/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Autenticação JWT", entregavel: "login funcional", status: "pendente" },
+            { dia: 56, data: "25/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Histórico de perguntas por usuário", entregavel: "GET /historico", status: "pendente" },
+            { dia: 57, data: "26/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Estatísticas do usuário", entregavel: "GET /estatisticas", status: "pendente" },
+            { dia: 58, data: "27/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Sistema de feedback (like/dislike)", entregavel: "POST /feedback", status: "pendente" },
+            { dia: 59, data: "28/02/2026", fase: "F2", faseNome: "Agentes", atividade: "Testes de fluxo completo", entregavel: "end-to-end", status: "pendente" },
+            { dia: 60, data: "01/03/2026", fase: "F2", faseNome: "Agentes", atividade: "🎉 CELEBRAÇÃO - Fim da Fase 2", entregavel: "agentes funcionando", status: "pendente" },
+
+            // FASE 3: BACKEND JAVA (Dias 61-90)
+            { dia: 61, data: "02/03/2026", fase: "F3", faseNome: "Java", atividade: "Setup do Spring Boot", entregavel: "projeto base", status: "pendente" },
+            { dia: 62, data: "03/03/2026", fase: "F3", faseNome: "Java", atividade: "Configuração Maven/Gradle", entregavel: "pom.xml", status: "pendente" },
+            { dia: 63, data: "04/03/2026", fase: "F3", faseNome: "Java", atividade: "Estrutura de pacotes", entregavel: "clean architecture", status: "pendente" },
+            { dia: 64, data: "05/03/2026", fase: "F3", faseNome: "Java", atividade: "Configuração PostgreSQL + JPA", entregavel: "conexão DB", status: "pendente" },
+            { dia: 65, data: "06/03/2026", fase: "F3", faseNome: "Java", atividade: "Migrations com Flyway", entregavel: "versão de schema", status: "pendente" },
+            { dia: 66, data: "07/03/2026", fase: "F3", faseNome: "Java", atividade: "Entidade Usuario", entregavel: "Usuario.java", status: "pendente" },
+            { dia: 67, data: "08/03/2026", fase: "F3", faseNome: "Java", atividade: "CRUD básico de usuários", entregavel: "UsuarioController", status: "pendente" },
+            { dia: 68, data: "09/03/2026", fase: "F3", faseNome: "Java", atividade: "Modelagem de Planos e Assinaturas", entregavel: "diagrama classes", status: "pendente" },
+            { dia: 69, data: "10/03/2026", fase: "F3", faseNome: "Java", atividade: "Entidade Plano", entregavel: "Plano.java", status: "pendente" },
+            { dia: 70, data: "11/03/2026", fase: "F3", faseNome: "Java", atividade: "Entidade Assinatura", entregavel: "Assinatura.java", status: "pendente" },
+            { dia: 71, data: "12/03/2026", fase: "F3", faseNome: "Java", atividade: "Repositories e Services", entregavel: "camada de dados", status: "pendente" },
+            { dia: 72, data: "13/03/2026", fase: "F3", faseNome: "Java", atividade: "Regras de validação de assinatura", entregavel: "assinatura ativa", status: "pendente" },
+            { dia: 73, data: "14/03/2026", fase: "F3", faseNome: "Java", atividade: "Testes de ciclo de vida", entregavel: "JUnit tests", status: "pendente" },
+            { dia: 74, data: "15/03/2026", fase: "F3", faseNome: "Java", atividade: "Cliente HTTP para API Python", entregavel: "AgentsApiClient", status: "pendente" },
+            { dia: 75, data: "16/03/2026", fase: "F3", faseNome: "Java", atividade: "DTOs de requisição/resposta", entregavel: "record classes", status: "pendente" },
+            { dia: 76, data: "17/03/2026", fase: "F3", faseNome: "Java", atividade: "Serviço de consulta integrado", entregavel: "ConsultaService", status: "pendente" },
+            { dia: 77, data: "18/03/2026", fase: "F3", faseNome: "Java", atividade: "Cache Redis para respostas frequentes", entregavel: "@Cacheable", status: "pendente" },
+            { dia: 78, data: "19/03/2026", fase: "F3", faseNome: "Java", atividade: "Endpoint /api/consulta", entregavel: "POST /consulta", status: "pendente" },
+            { dia: 79, data: "20/03/2026", fase: "F3", faseNome: "Java", atividade: "Tratamento de erros", entregavel: "@ControllerAdvice", status: "pendente" },
+            { dia: 80, data: "21/03/2026", fase: "F3", faseNome: "Java", atividade: "Testes de integração Java ↔ Python", entregavel: "end-to-end", status: "pendente" },
+            { dia: 81, data: "22/03/2026", fase: "F3", faseNome: "Java", atividade: "Contador de consultas por usuário", entregavel: "rate limiting", status: "pendente" },
+            { dia: 82, data: "23/03/2026", fase: "F3", faseNome: "Java", atividade: "Limites por plano (ex: 100/dia)", entregavel: "validação", status: "pendente" },
+            { dia: 83, data: "24/03/2026", fase: "F3", faseNome: "Java", atividade: "Endpoint de consumo", entregavel: "GET /consumo", status: "pendente" },
+            { dia: 84, data: "25/03/2026", fase: "F3", faseNome: "Java", atividade: "Webhook para pagamentos", entregavel: "POST /webhook", status: "pendente" },
+            { dia: 85, data: "26/03/2026", fase: "F3", faseNome: "Java", atividade: "Admin básico (usuários/assinaturas)", entregavel: "/admin", status: "pendente" },
+            { dia: 86, data: "27/03/2026", fase: "F3", faseNome: "Java", atividade: "Testes de concorrência (JMeter)", entregavel: "relatório", status: "pendente" },
+            { dia: 87, data: "28/03/2026", fase: "F3", faseNome: "Java", atividade: "Documentação Swagger", entregavel: "swagger-ui", status: "pendente" },
+            { dia: 88, data: "29/03/2026", fase: "F3", faseNome: "Java", atividade: "Revisão e refatoração", entregavel: "código limpo", status: "pendente" },
+            { dia: 89, data: "30/03/2026", fase: "F3", faseNome: "Java", atividade: "Preparação para integração frontend", entregavel: "APIs prontas", status: "pendente" },
+            { dia: 90, data: "31/03/2026", fase: "F3", faseNome: "Java", atividade: "🎉 CELEBRAÇÃO - Fim da Fase 3", entregavel: "backend Java funcional", status: "pendente" },
+
+            // FASE 4: FRONTEND (Dias 91-120)
+            { dia: 91, data: "01/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Criar projeto Next.js + TypeScript", entregavel: "npx create-next-app", status: "pendente" },
+            { dia: 92, data: "02/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Configurar Tailwind + shadcn/ui", entregavel: "design system", status: "pendente" },
+            { dia: 93, data: "03/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Estrutura de pastas (app, components, lib)", entregavel: "organização", status: "pendente" },
+            { dia: 94, data: "04/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Cliente HTTP com Axios", entregavel: "api.ts", status: "pendente" },
+            { dia: 95, data: "05/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Tema claro/escuro", entregavel: "next-themes", status: "pendente" },
+            { dia: 96, data: "06/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Páginas de Login/Registro", entregavel: "shadcn/ui forms", status: "pendente" },
+            { dia: 97, data: "07/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Validação com Zod", entregavel: "form validation", status: "pendente" },
+            { dia: 98, data: "08/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Integração com API Java (login)", entregavel: "autenticação", status: "pendente" },
+            { dia: 99, data: "09/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Armazenamento do token JWT", entregavel: "cookies/localStorage", status: "pendente" },
+            { dia: 100, data: "10/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Layout base com Header/Sidebar", entregavel: "layout.tsx", status: "pendente" },
+            { dia: 101, data: "11/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Proteção de rotas (middleware)", entregavel: "middleware.ts", status: "pendente" },
+            { dia: 102, data: "12/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Página de perfil do usuário", entregavel: "/perfil", status: "pendente" },
+            { dia: 103, data: "13/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Dashboard inicial com cards", entregavel: "resumo do usuário", status: "pendente" },
+            { dia: 104, data: "14/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Área de consulta (chat com IA)", entregavel: "ChatInterface", status: "pendente" },
+            { dia: 105, data: "15/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Integração com POST /consulta", entregavel: "React Query", status: "pendente" },
+            { dia: 106, data: "16/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Loading states e skeletons", entregavel: "UX feedback", status: "pendente" },
+            { dia: 107, data: "17/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Histórico de perguntas", entregavel: "scroll-area lateral", status: "pendente" },
+            { dia: 108, data: "18/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Sistema de feedback (like/dislike)", entregavel: "POST /feedback", status: "pendente" },
+            { dia: 109, data: "19/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Modal de visualização de fontes", entregavel: "dialog component", status: "pendente" },
+            { dia: 110, data: "20/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Página de estatísticas (gráficos)", entregavel: "Recharts", status: "pendente" },
+            { dia: 111, data: "21/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Integração com GET /estatisticas", entregavel: "dados reais", status: "pendente" },
+            { dia: 112, data: "22/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Gráfico de acertos por disciplina", entregavel: "bar chart", status: "pendente" },
+            { dia: 113, data: "23/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Timeline de evolução", entregavel: "line chart", status: "pendente" },
+            { dia: 114, data: "24/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Página de planos e assinaturas", entregavel: "pricing cards", status: "pendente" },
+            { dia: 115, data: "25/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Integração com GET /planos", entregavel: "listagem", status: "pendente" },
+            { dia: 116, data: "26/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Fluxo de checkout", entregavel: "POST /assinaturas", status: "pendente" },
+            { dia: 117, data: "27/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Testes com Lighthouse", entregavel: "performance >80", status: "pendente" },
+            { dia: 118, data: "28/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Correções de usabilidade", entregavel: "bugs corrigidos", status: "pendente" },
+            { dia: 119, data: "29/04/2026", fase: "F4", faseNome: "Frontend", atividade: "Deploy na Vercel", entregavel: "site no ar", status: "pendente" },
+            { dia: 120, data: "30/04/2026", fase: "F4", faseNome: "Frontend", atividade: "🎉 CELEBRAÇÃO - Fim da Fase 4", entregavel: "frontend completo", status: "pendente" },
+
+            // FASE 5: MP E DEFENSORIA (Dias 121-150)
+            { dia: 121, data: "01/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Coletar PDFs do Ministério Público", entregavel: "20+ PDFs MP", status: "pendente" },
+            { dia: 122, data: "02/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Coletar PDFs da Defensoria Pública", entregavel: "20+ PDFs Defensoria", status: "pendente" },
+            { dia: 123, data: "03/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Análise de diferenças entre estilos", entregavel: "documento de especificidades", status: "pendente" },
+            { dia: 124, data: "04/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Adaptar regex para novos formatos", entregavel: "extrator atualizado", status: "pendente" },
+            { dia: 125, data: "05/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Processar PDFs do MP", entregavel: "1000+ questões MP", status: "pendente" },
+            { dia: 126, data: "06/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Processar PDFs da Defensoria", entregavel: "1000+ questões Defensoria", status: "pendente" },
+            { dia: 127, data: "07/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Gerar embeddings das novas questões", entregavel: "vetores", status: "pendente" },
+            { dia: 128, data: "08/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Criar coleção MP no ChromaDB", entregavel: "juridico_mp", status: "pendente" },
+            { dia: 129, data: "09/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Criar coleção Defensoria no ChromaDB", entregavel: "juridico_defensoria", status: "pendente" },
+            { dia: 130, data: "10/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Adaptar metadados (orgao)", entregavel: "metadados expandidos", status: "pendente" },
+            { dia: 131, data: "11/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Inserir questões do MP", entregavel: "base MP indexada", status: "pendente" },
+            { dia: 132, data: "12/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Inserir questões da Defensoria", entregavel: "base Defensoria indexada", status: "pendente" },
+            { dia: 133, data: "13/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "BM25 para novas coleções", entregavel: "índice híbrido", status: "pendente" },
+            { dia: 134, data: "14/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Validação de qualidade", entregavel: "relatório", status: "pendente" },
+            { dia: 135, data: "15/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Criar agente MP", entregavel: "MPAgent", status: "pendente" },
+            { dia: 136, data: "16/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Criar agente Defensoria", entregavel: "DefensoriaAgent", status: "pendente" },
+            { dia: 137, data: "17/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Tools específicas por órgão", entregavel: "custom tools", status: "pendente" },
+            { dia: 138, data: "18/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Router inteligente entre órgãos", entregavel: "classificador", status: "pendente" },
+            { dia: 139, data: "19/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Testes do router (50 perguntas)", entregavel: "90%+ acerto", status: "pendente" },
+            { dia: 140, data: "20/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Integrar novos agentes na API", entregavel: "area=mp, area=defensoria", status: "pendente" },
+            { dia: 141, data: "21/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Documentação dos novos agentes", entregavel: "docs/", status: "pendente" },
+            { dia: 142, data: "22/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Atualizar cliente Java", entregavel: "AgentsApiClient", status: "pendente" },
+            { dia: 143, data: "23/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Adicionar campo orgao no banco", entregavel: "migration", status: "pendente" },
+            { dia: 144, data: "24/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Atualizar entidades Plano", entregavel: "planos_orgaos", status: "pendente" },
+            { dia: 145, data: "25/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Regras de negócio por órgão", entregavel: "validação", status: "pendente" },
+            { dia: 146, data: "26/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Atualizar frontend: aba MP", entregavel: "UI", status: "pendente" },
+            { dia: 147, data: "27/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Atualizar frontend: aba Defensoria", entregavel: "UI", status: "pendente" },
+            { dia: 148, data: "28/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Seletor de órgão na consulta", entregavel: "tabs", status: "pendente" },
+            { dia: 149, data: "29/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "Estatísticas por órgão", entregavel: "gráficos segmentados", status: "pendente" },
+            { dia: 150, data: "30/05/2026", fase: "F5", faseNome: "MP/Defensoria", atividade: "🎉 CELEBRAÇÃO - Fim da Fase 5", entregavel: "3 órgãos funcionando", status: "pendente" },
+
+            // FASE 6: WHATSAPP (Dias 151-180)
+            { dia: 151, data: "31/05/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Estudar APIs do WhatsApp Business", entregavel: "decisão técnica", status: "pendente" },
+            { dia: 152, data: "01/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Criar conta no Facebook Business", entregavel: "conta verificada", status: "pendente" },
+            { dia: 153, data: "02/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Configurar webhook", entregavel: "endpoint /webhook", status: "pendente" },
+            { dia: 154, data: "03/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Primeira resposta automática", entregavel: "bot responde", status: "pendente" },
+            { dia: 155, data: "04/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Integrar com API de agentes", entregavel: "pergunta → resposta", status: "pendente" },
+            { dia: 156, data: "05/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Detecção de usuário por número", entregavel: "GET /por-telefone", status: "pendente" },
+            { dia: 157, data: "06/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Validação de assinatura", entregavel: "bloqueio sem plano", status: "pendente" },
+            { dia: 158, data: "07/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Fluxo para não cadastrados", entregavel: "mensagem automática", status: "pendente" },
+            { dia: 159, data: "08/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Implementar comando /ajuda", entregavel: "lista de comandos", status: "pendente" },
+            { dia: 160, data: "09/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Implementar comando /questoes", entregavel: "retorna 3 questões", status: "pendente" },
+            { dia: 161, data: "10/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Implementar /estatisticas", entregavel: "desempenho", status: "pendente" },
+            { dia: 162, data: "11/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Implementar /plano", entregavel: "info da assinatura", status: "pendente" },
+            { dia: 163, data: "12/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Menu interativo com botões", entregavel: "listas de resposta", status: "pendente" },
+            { dia: 164, data: "13/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Lembretes de estudo agendados", entregavel: "Celery beat", status: "pendente" },
+            { dia: 165, data: "14/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Testes com 5 usuários simulados", entregavel: "feedback", status: "pendente" },
+            { dia: 166, data: "15/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Pesquisar gateways de pagamento PY", entregavel: "Bancard/Pagopar", status: "pendente" },
+            { dia: 167, data: "16/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Criar conta sandbox no gateway", entregavel: "credenciais", status: "pendente" },
+            { dia: 168, data: "17/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Webhook de pagamento no Java", entregavel: "/webhook/pagamento", status: "pendente" },
+            { dia: 169, data: "18/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Fluxo de assinatura via WhatsApp", entregavel: "menu + link", status: "pendente" },
+            { dia: 170, data: "19/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Geração de link de pagamento único", entregavel: "link expira 24h", status: "pendente" },
+            { dia: 171, data: "20/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Ativação automática pós-pagamento", entregavel: "assinatura ativa", status: "pendente" },
+            { dia: 172, data: "21/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Renovação automática", entregavel: "cobrança mensal", status: "pendente" },
+            { dia: 173, data: "22/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Relatório de pagamentos (admin)", entregavel: "dashboard", status: "pendente" },
+            { dia: 174, data: "23/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Primeiros 5 usuários pagantes", entregavel: "convidar testers", status: "pendente" },
+            { dia: 175, data: "24/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Onboarding dos primeiros usuários", entregavel: "suporte manual", status: "pendente" },
+            { dia: 176, data: "25/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Coletar feedback", entregavel: "pesquisa", status: "pendente" },
+            { dia: 177, data: "26/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Ajustes com base no feedback", entregavel: "melhorias", status: "pendente" },
+            { dia: 178, data: "27/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Documentação do bot", entregavel: "manual do usuário", status: "pendente" },
+            { dia: 179, data: "28/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "Preparar lançamento", entregavel: "estratégia", status: "pendente" },
+            { dia: 180, data: "29/06/2026", fase: "F6", faseNome: "WhatsApp", atividade: "🎉 CELEBRAÇÃO - Fim da Fase 6", entregavel: "bot funcional + pagamentos", status: "pendente" },
+
+            // FASE 7: ANALYTICS E EVALS (Dias 181-210)
+            { dia: 181, data: "30/06/2026", fase: "F7", faseNome: "Analytics", atividade: "Instalar Metabase via Docker", entregavel: "localhost:3000", status: "pendente" },
+            { dia: 182, data: "01/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Conectar Metabase ao PostgreSQL", entregavel: "conexão JDBC", status: "pendente" },
+            { dia: 183, data: "02/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Dashboard Visão Geral do Negócio", entregavel: "usuários, receita", status: "pendente" },
+            { dia: 184, data: "03/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Dashboard Comportamento de Uso", entregavel: "consultas por dia", status: "pendente" },
+            { dia: 185, data: "04/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Métricas customizadas", entregavel: "taxa_acerto", status: "pendente" },
+            { dia: 186, data: "05/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Embedding do Metabase no Next.js", entregavel: "dashboard aluno", status: "pendente" },
+            { dia: 187, data: "06/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Permissões multi-tenant", entregavel: "isolamento", status: "pendente" },
+            { dia: 188, data: "07/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Dashboard Meu Desempenho", entregavel: "gráficos", status: "pendente" },
+            { dia: 189, data: "08/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Filtros por órgão", entregavel: "campo interativo", status: "pendente" },
+            { dia: 190, data: "09/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Testes com usuários (dashboard)", entregavel: "feedback", status: "pendente" },
+            { dia: 191, data: "10/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Estudar RAGAS para evals", entregavel: "documentação", status: "pendente" },
+            { dia: 192, data: "11/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Criar gold dataset (100 perguntas)", entregavel: "respostas esperadas", status: "pendente" },
+            { dia: 193, data: "12/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Pipeline de evals com RAGAS", entregavel: "script Python", status: "pendente" },
+            { dia: 194, data: "13/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Calcular baseline (precisão)", entregavel: "82%", status: "pendente" },
+            { dia: 195, data: "14/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Identificar padrões de erro", entregavel: "20 casos", status: "pendente" },
+            { dia: 196, data: "15/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Instalar Flower para monitoramento", entregavel: "localhost:5555", status: "pendente" },
+            { dia: 197, data: "16/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Alertas de performance", entregavel: "fila Redis", status: "pendente" },
+            { dia: 198, data: "17/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Otimizar prompts com base em erros", entregavel: "prompts v2", status: "pendente" },
+            { dia: 199, data: "18/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Feedback loop (negativos → treino)", entregavel: "dataset", status: "pendente" },
+            { dia: 200, data: "19/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Teste A/B (agente atual vs otimizado)", entregavel: "relatório", status: "pendente" },
+            { dia: 201, data: "20/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Otimizar performance ChromaDB", entregavel: "índices", status: "pendente" },
+            { dia: 202, data: "21/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Cache inteligente Redis", entregavel: "TTL 24h", status: "pendente" },
+            { dia: 203, data: "22/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Relatório automático de qualidade", entregavel: "semanal", status: "pendente" },
+            { dia: 204, data: "23/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Documentação de métricas", entregavel: "docs/", status: "pendente" },
+            { dia: 205, data: "24/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Revisar feedback dos usuários", entregavel: "5 melhorias", status: "pendente" },
+            { dia: 206, data: "25/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Implementar melhorias", entregavel: "código atualizado", status: "pendente" },
+            { dia: 207, data: "26/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Testar melhorias com usuários", entregavel: "validação", status: "pendente" },
+            { dia: 208, data: "27/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Preparar relatório final Fase 7", entregavel: "métricas", status: "pendente" },
+            { dia: 209, data: "28/07/2026", fase: "F7", faseNome: "Analytics", atividade: "Revisão geral", entregavel: "checklist", status: "pendente" },
+            { dia: 210, data: "29/07/2026", fase: "F7", faseNome: "Analytics", atividade: "🎉 CELEBRAÇÃO - Fim da Fase 7", entregavel: "sistema mensurável", status: "pendente" },
+
+            // FASE 8: EXPANSÃO CONCURSOS GERAIS (Dias 211-240)
+            { dia: 211, data: "30/07/2026", fase: "F8", faseNome: "Expansão", atividade: "Mapear concursos gerais no PY", entregavel: "lista de 10 órgãos", status: "pendente" },
+            { dia: 212, data: "31/07/2026", fase: "F8", faseNome: "Expansão", atividade: "Coletar PDFs administrativos", entregavel: "20+ PDFs", status: "pendente" },
+            { dia: 213, data: "01/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Coletar PDFs financeiros", entregavel: "20+ PDFs", status: "pendente" },
+            { dia: 214, data: "02/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Coletar PDFs policiais", entregavel: "20+ PDFs", status: "pendente" },
+            { dia: 215, data: "03/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Coletar PDFs de TI", entregavel: "10+ PDFs", status: "pendente" },
+            { dia: 216, data: "04/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Analisar padrões por disciplina", entregavel: "documento", status: "pendente" },
+            { dia: 217, data: "05/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Adaptar regex para novos formatos", entregavel: "extrator v2", status: "pendente" },
+            { dia: 218, data: "06/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Processar PDFs administrativos", entregavel: "2000+ questões", status: "pendente" },
+            { dia: 219, data: "07/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Processar PDFs financeiros", entregavel: "1500+ questões", status: "pendente" },
+            { dia: 220, data: "08/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Processar PDFs policiais", entregavel: "2000+ questões", status: "pendente" },
+            { dia: 221, data: "09/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Processar PDFs de TI", entregavel: "800+ questões", status: "pendente" },
+            { dia: 222, data: "10/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Criar coleções ChromaDB", entregavel: "admin, financas, policial, ti", status: "pendente" },
+            { dia: 223, data: "11/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Adaptar metadados (disciplina)", entregavel: "metadados", status: "pendente" },
+            { dia: 224, data: "12/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Inserir todas novas questões", entregavel: "base 10k+", status: "pendente" },
+            { dia: 225, data: "13/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Criar agente AdminPublico", entregavel: "AdminPublicoAgent", status: "pendente" },
+            { dia: 226, data: "14/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Criar agente Contabilidade", entregavel: "ContabilidadeAgent", status: "pendente" },
+            { dia: 227, data: "15/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Criar agente Policial", entregavel: "PolicialAgent", status: "pendente" },
+            { dia: 228, data: "16/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Criar agente Informatica", entregavel: "InformaticaAgent", status: "pendente" },
+            { dia: 229, data: "17/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Criar agente Logica", entregavel: "LogicaAgent", status: "pendente" },
+            { dia: 230, data: "18/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Router hierárquico (órgão→disciplina)", entregavel: "classificador", status: "pendente" },
+            { dia: 231, data: "19/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Testes do router (100 perguntas)", entregavel: "85%+ acerto", status: "pendente" },
+            { dia: 232, data: "20/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Atualizar API Python", entregavel: "novos endpoints", status: "pendente" },
+            { dia: 233, data: "21/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Atualizar cliente Java", entregavel: "AgentsApiClient", status: "pendente" },
+            { dia: 234, data: "22/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Criar novos planos generalistas", entregavel: "Concurso Geral", status: "pendente" },
+            { dia: 235, data: "23/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Atualizar entidades Plano", entregavel: "planos_disciplinas", status: "pendente" },
+            { dia: 236, data: "24/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Atualizar frontend (seção geral)", entregavel: "UI", status: "pendente" },
+            { dia: 237, data: "25/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Seletor de disciplina na consulta", entregavel: "combobox", status: "pendente" },
+            { dia: 238, data: "26/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Estatísticas por disciplina geral", entregavel: "gráficos", status: "pendente" },
+            { dia: 239, data: "27/08/2026", fase: "F8", faseNome: "Expansão", atividade: "Testes com 5 usuários", entregavel: "feedback", status: "pendente" },
+            { dia: 240, data: "28/08/2026", fase: "F8", faseNome: "Expansão", atividade: "🎉 CELEBRAÇÃO - Fim da Fase 8", entregavel: "base 11k+ questões", status: "pendente" },
+
+            // FASE 9: ESCALABILIDADE (Dias 241-270)
+            { dia: 241, data: "29/08/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Estudar Redis Semantic Cache", entregavel: "documentação", status: "pendente" },
+            { dia: 242, data: "30/08/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Configurar Redis 8.0+", entregavel: "RediSearch", status: "pendente" },
+            { dia: 243, data: "31/08/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Implementar RedisSemanticCache", entregavel: "classe Python", status: "pendente" },
+            { dia: 244, data: "01/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Ajustar threshold similaridade", entregavel: "0.05-0.1", status: "pendente" },
+            { dia: 245, data: "02/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Integrar cache na API", entregavel: "antes do agente", status: "pendente" },
+            { dia: 246, data: "03/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Testar hit ratio", entregavel: "30-40%", status: "pendente" },
+            { dia: 247, data: "04/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Profiling de gargalos", entregavel: "relatório", status: "pendente" },
+            { dia: 248, data: "05/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Cache de embeddings", entregavel: "EmbeddingCache", status: "pendente" },
+            { dia: 249, data: "06/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Otimizar prompts (reduzir tokens)", entregavel: "prompts v3", status: "pendente" },
+            { dia: 250, data: "07/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Batching para consultas similares", entregavel: "agrupamento", status: "pendente" },
+            { dia: 251, data: "08/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Cache de tools", entregavel: "resultados Redis", status: "pendente" },
+            { dia: 252, data: "09/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Teste A/B (antes/depois)", entregavel: "melhorias", status: "pendente" },
+            { dia: 253, data: "10/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Analisar padrões de uso", entregavel: "picos 19-22h", status: "pendente" },
+            { dia: 254, data: "11/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Autoscaling Celery", entregavel: "workers sob demanda", status: "pendente" },
+            { dia: 255, data: "12/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Filas prioritárias", entregavel: "high/default/low", status: "pendente" },
+            { dia: 256, data: "13/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Limites de concorrência", entregavel: "4 workers/instância", status: "pendente" },
+            { dia: 257, data: "14/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Health checks", entregavel: "auto-recovery", status: "pendente" },
+            { dia: 258, data: "15/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Testar autoscaling", entregavel: "2→10 workers", status: "pendente" },
+            { dia: 259, data: "16/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Configurar Locust", entregavel: "cenários de teste", status: "pendente" },
+            { dia: 260, data: "17/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Teste com 100 usuários", entregavel: "relatório", status: "pendente" },
+            { dia: 261, data: "18/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Teste com 250 usuários", entregavel: "relatório", status: "pendente" },
+            { dia: 262, data: "19/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Teste com 500 usuários", entregavel: "relatório", status: "pendente" },
+            { dia: 263, data: "20/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Otimizar com base nos testes", entregavel: "ajustes finos", status: "pendente" },
+            { dia: 264, data: "21/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Documentar capacidade do sistema", entregavel: "docs/", status: "pendente" },
+            { dia: 265, data: "22/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Preparar ambiente produção", entregavel: "ajustes", status: "pendente" },
+            { dia: 266, data: "23/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Revisão geral Fase 9", entregavel: "checklist", status: "pendente" },
+            { dia: 267, data: "24/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Documentar arquitetura escalável", entregavel: "docs/", status: "pendente" },
+            { dia: 268, data: "25/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Últimos ajustes", entregavel: "pronto para lançar", status: "pendente" },
+            { dia: 269, data: "26/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "Preparação para Fase 10", entregavel: "roadmap", status: "pendente" },
+            { dia: 270, data: "27/09/2026", fase: "F9", faseNome: "Escalabilidade", atividade: "🎉 CELEBRAÇÃO - Fim da Fase 9", entregavel: "sistema escalável", status: "pendente" },
+
+            // FASE 10: LANÇAMENTO (Dias 271-300)
+            { dia: 271, data: "28/09/2026", fase: "F10", faseNome: "Lançamento", atividade: "Criar identidade visual", entregavel: "logo, cores", status: "pendente" },
+            { dia: 272, data: "29/09/2026", fase: "F10", faseNome: "Lançamento", atividade: "Desenvolver página de vendas", entregavel: "landing page", status: "pendente" },
+            { dia: 273, data: "30/09/2026", fase: "F10", faseNome: "Lançamento", atividade: "Criar vídeo de demonstração", entregavel: "2-3 minutos", status: "pendente" },
+            { dia: 274, data: "01/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Copy para redes sociais", entregavel: "30 posts", status: "pendente" },
+            { dia: 275, data: "02/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Flyers digitais", entregavel: "5 modelos", status: "pendente" },
+            { dia: 276, data: "03/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Configurar domínio", entregavel: "iajuridicapy.com", status: "pendente" },
+            { dia: 277, data: "04/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "FAQ completo", entregavel: "/faq", status: "pendente" },
+            { dia: 278, data: "05/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Mapear grupos WhatsApp", entregavel: "50 grupos", status: "pendente" },
+            { dia: 279, data: "06/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Estratégia de entrada", entregavel: "roteiro", status: "pendente" },
+            { dia: 280, data: "07/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Anúncios Facebook/Instagram", entregavel: "campanha", status: "pendente" },
+            { dia: 281, data: "08/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Parceria micro-influencers", entregavel: "5 acordos", status: "pendente" },
+            { dia: 282, data: "09/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Programa de indicação", entregavel: "códigos", status: "pendente" },
+            { dia: 283, data: "10/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Pixel de conversão", entregavel: "Meta Pixel", status: "pendente" },
+            { dia: 284, data: "11/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Oferta de lançamento", entregavel: "50% off", status: "pendente" },
+            { dia: 285, data: "12/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "🚀 DIA DO LANÇAMENTO", entregavel: "posts em todas redes", status: "pendente" },
+            { dia: 286, data: "13/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Entrar em grupos WhatsApp", entregavel: "10 grupos", status: "pendente" },
+            { dia: 287, data: "14/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Onboarding primeiros usuários", entregavel: "10 cadastros", status: "pendente" },
+            { dia: 288, data: "15/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Email de boas-vindas", entregavel: "automático", status: "pendente" },
+            { dia: 289, data: "16/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Chatbot de vendas", entregavel: "ManyChat", status: "pendente" },
+            { dia: 290, data: "17/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Coletar depoimentos", entregavel: "3 vídeos", status: "pendente" },
+            { dia: 291, data: "18/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Analisar primeiros dias", entregavel: "relatório", status: "pendente" },
+            { dia: 292, data: "19/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Analisar funil de conversão", entregavel: "gargalos", status: "pendente" },
+            { dia: 293, data: "20/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "A/B test landing page", entregavel: "versão vencedora", status: "pendente" },
+            { dia: 294, data: "21/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Otimizar checkout", entregavel: "3 passos", status: "pendente" },
+            { dia: 295, data: "22/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Relatório semanal", entregavel: "dashboard", status: "pendente" },
+            { dia: 296, data: "23/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Planejar próximas ações", entregavel: "roadmap", status: "pendente" },
+            { dia: 297, data: "24/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Case de sucesso LinkedIn", entregavel: "artigo", status: "pendente" },
+            { dia: 298, data: "25/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Celebrar 100 usuários", entregavel: "meta atingida", status: "pendente" },
+            { dia: 299, data: "26/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "Revisão final do projeto", entregavel: "lições aprendidas", status: "pendente" },
+            { dia: 300, data: "27/10/2026", fase: "F10", faseNome: "Lançamento", atividade: "🎉🎉🎉 PROJETO CONCLUÍDO! 🎉🎉🎉", entregavel: "FIM DA JORNADA", status: "pendente" }
+        ];
+
+        // Estado global
+        let diasData = [...cronogramaData];
+        let filtroAtual = 'todos';
+        let faseFiltro = 'todas';
+        let buscaTexto = '';
+
+        // Elementos DOM
+        const tabelaCorpo = document.getElementById('tabela-corpo');
+        const diasConcluidosEl = document.getElementById('dias-concluidos');
+        const progressoGeralEl = document.getElementById('progresso-geral');
+        const progressBarFill = document.getElementById('progress-bar-fill');
+        const diaAtualEl = document.getElementById('dia-atual');
+        const faseAtivaEl = document.getElementById('fase-ativa');
+
+        // Carregar progresso do localStorage
+        function carregarProgresso() {
+            const saved = localStorage.getItem('cronogramaProgresso');
+            if (saved) {
+                const statusMap = JSON.parse(saved);
+                diasData = diasData.map(dia => ({
+                    ...dia,
+                    status: statusMap[dia.dia] || dia.status
+                }));
+            }
+            atualizarEstatisticas();
+            renderizarTabela();
+        }
+
+        // Salvar progresso no localStorage
+        function salvarProgresso() {
+            const statusMap = {};
+            diasData.forEach(dia => {
+                statusMap[dia.dia] = dia.status;
+            });
+            localStorage.setItem('cronogramaProgresso', JSON.stringify(statusMap));
+            alert('Progresso salvo com sucesso!');
+        }
+
+        // Atualizar status de um dia
+        function atualizarStatus(dia, novoStatus) {
+            const index = diasData.findIndex(d => d.dia === dia);
+            if (index !== -1) {
+                diasData[index].status = novoStatus;
+                salvarProgresso();
+                atualizarEstatisticas();
+                renderizarTabela();
+            }
+        }
+
+        // Calcular estatísticas
+        function atualizarEstatisticas() {
+            const total = diasData.length;
+            const concluidos = diasData.filter(d => d.status === 'concluido').length;
+            const andamento = diasData.filter(d => d.status === 'andamento').length;
+            
+            const percentual = Math.round((concluidos / total) * 100);
+            
+            diasConcluidosEl.textContent = concluidos;
+            progressoGeralEl.textContent = percentual + '%';
+            progressBarFill.style.width = percentual + '%';
+            
+            // Encontrar dia atual (primeiro pendente)
+            const hoje = diasData.find(d => d.status === 'pendente');
+            if (hoje) {
+                diaAtualEl.textContent = hoje.dia;
+                faseAtivaEl.textContent = `Fase ${hoje.fase.charAt(1)}: ${hoje.faseNome}`;
+            }
+        }
+
+        // Renderizar tabela com filtros
+        function renderizarTabela() {
+            let dadosFiltrados = [...diasData];
+            
+            // Aplicar filtro de status
+            if (filtroAtual !== 'todos') {
+                dadosFiltrados = dadosFiltrados.filter(d => d.status === filtroAtual);
+            }
+            
+            // Aplicar filtro de fase
+            if (faseFiltro !== 'todas') {
+                dadosFiltrados = dadosFiltrados.filter(d => d.fase === faseFiltro);
+            }
+            
+            // Aplicar busca
+            if (buscaTexto.trim() !== '') {
+                const texto = buscaTexto.toLowerCase();
+                dadosFiltrados = dadosFiltrados.filter(d => 
+                    d.atividade.toLowerCase().includes(texto) || 
+                    d.entregavel.toLowerCase().includes(texto)
+                );
+            }
+            
+            // Gerar HTML
+            let html = '';
+            dadosFiltrados.forEach(dia => {
+                const statusClass = {
+                    'concluido': 'status-concluido',
+                    'andamento': 'status-andamento',
+                    'pendente': 'status-pendente'
+                }[dia.status] || 'status-pendente';
+                
+                const statusText = {
+                    'concluido': '✅ Concluído',
+                    'andamento': '▶️ Em Andamento',
+                    'pendente': '⏳ Pendente'
+                }[dia.status] || '⏳ Pendente';
+                
+                const faseClass = `fase-badge fase-${dia.fase.charAt(1)}`;
+                
+                html += `
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="checkbox" 
+                                ${dia.status === 'concluido' ? 'checked' : ''}
+                                onchange="atualizarStatus(${dia.dia}, this.checked ? 'concluido' : 'pendente')">
+                        </td>
+                        <td><strong>${dia.dia}</strong></td>
+                        <td>${dia.data}</td>
+                        <td><span class="${faseClass}">${dia.fase}</span></td>
+                        <td>${dia.atividade}</td>
+                        <td>${dia.entregavel}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `;
+            });
+            
+            tabelaCorpo.innerHTML = html;
+        }
+
+        // Event Listeners
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                filtroAtual = e.target.dataset.filter;
+                renderizarTabela();
+            });
+        });
+
+        document.getElementById('filtro-fase').addEventListener('change', (e) => {
+            faseFiltro = e.target.value;
+            renderizarTabela();
+        });
+
+        document.getElementById('busca').addEventListener('input', (e) => {
+            buscaTexto = e.target.value;
+            renderizarTabela();
+        });
+
+        document.getElementById('salvar').addEventListener('click', salvarProgresso);
+
+        document.getElementById('exportar').addEventListener('click', () => {
+            const dataStr = JSON.stringify(diasData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const exportFileDefaultName = `cronograma-backup-${new Date().toISOString().slice(0,10)}.json`;
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        });
+
+        document.getElementById('importar').addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = event => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        if (Array.isArray(imported) && imported.length === 300) {
+                            diasData = imported;
+                            salvarProgresso();
+                            atualizarEstatisticas();
+                            renderizarTabela();
+                            alert('Progresso importado com sucesso!');
+                        } else {
+                            alert('Arquivo inválido');
+                        }
+                    } catch (error) {
+                        alert('Erro ao importar arquivo');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        });
+
+        document.getElementById('data-atual').textContent = new Date().toLocaleDateString('pt-BR');
+
+        // Inicializar
+        carregarProgresso();
+    </script>
+</body>
+</html>
