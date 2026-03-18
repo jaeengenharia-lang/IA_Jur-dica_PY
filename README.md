@@ -71,7 +71,7 @@ graph TD
 | **Fase 9** | Dias 241-270 | Escalabilidade | ⏳ Pendente |
 | **Fase 10**| Dias 271-300 | Lançamento | ⏳ Pendente |
 
-📅 **[Acesse o Cronograma Detalhado](cronograma.html)**
+📅 **[Acesse o Cronograma Detalhado](IA_Jurídica_PY.html)**
 
 ---
 
